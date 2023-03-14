@@ -5,10 +5,11 @@ from pathlib import Path
 import re
 
 def _make_parser():
-    parser = argparse.ArgumentParser(description='Compare bags in two locations using their payload manifest entries')
+    parser = argparse.ArgumentParser(description='''Compare AMI bags in two locations
+                                     using their payload manifest entries''')
     parser.add_argument('-d_dupe', '--directory_duplicate',
-                        help = '''required. Directory one is the directory with potential duplicated bags.
-                        It should be a path to a directory of bags or a hard drive.''',
+                        help = '''required. Directory one is the directory with potential
+                        duplicated bags. It should be a path to a directory of bags or a hard drive.''',
                         required=True)
     parser.add_argument('-d_main', '--directory_main',
                         help = f'''required. Directory two is the directory to be compared against,
