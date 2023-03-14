@@ -50,17 +50,17 @@ def find_bags_in_dupe_dir(args):
 def check_dupe_status_in_main(args, bag_ids):
     path_main = Path(args.directory_main)
 
-    bag_not_in_main = []
+    bags_not_in_main = []
     bags_to_validate = []
 
     for b in bag_ids:
         bag_path = [x for x in path_main.rglob(b) if x.is_dir()]
         if not bag_path:
-            bag_not_in_main.append(b)
+            bags_not_in_main.append(b)
         else:
             bags_to_validate.append(bag_path[0])
 
-    return bag_not_in_main, bags_to_validate
+    return bags_not_in_main, bags_to_validate
 
 def validate_bags_in_main(bags_to_validate):
     valid_in_main = dict()
@@ -111,14 +111,14 @@ def main():
         bag_paths, bag_ids = find_bags_in_dupe_dir(args)
         print(f'''{bag_ids}, {len(bag_ids)} will be checked in the main directory''')
 
-        bag_not_in_main, bags_to_validate = check_dupe_status_in_main(args, bag_ids)
+        bags_not_in_main, bags_to_validate = check_dupe_status_in_main(args, bag_ids)
         valid_main, invalid_main = validate_bags_in_main(bags_to_validate)
         dup_missing_file, unequal_hash, identical = compare_payload_manifests(valid_main, bag_paths)
 
         print(f'''
         Checked {len(bag_ids)} bags: {bag_ids}
 
-        {len(bag_not_in_main)} bags are not duplication, not in the main directory: {bag_not_in_main}
+        {len(bags_not_in_main)} bags are not duplication, not in the main directory: {bags_not_in_main}
         {len(bags_to_validate)} bags are potentially duplicated: {[b.name for b in bags_to_validate]}
         First check -- validate the bag in main:
             {len(invalid_main)} bags are invalid in the main directory, review manually: {invalid_main}''')
