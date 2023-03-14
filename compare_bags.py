@@ -115,23 +115,5 @@ def main():
     These hashes are different in the two location {unequal_hash}
     These bags are identical {identical}''')
 
-'''
-dir1 is the smaller directory with potential duplicated bags
-dir2 is the major directory to compare against, e.g. 0_waiting_for_preservica
-'''
-
-'''
-Step 1. see if the bag in dir2 pass completeness-only check
-If pass, go to Step 2.
-If no, go review both bags manually.
-'''
-
-'''
-Step 2. process the valid ones
-Compare their manifest dictionaries
-
-'''
-
-
 if __name__ == "__main__":
     main()
