@@ -3,6 +3,7 @@ import bagit
 import logging
 from pathlib import Path
 import re
+import pprint as pp
 
 def _make_parser():
     parser = argparse.ArgumentParser(description='''Compare AMI bags in two locations
@@ -79,8 +80,8 @@ def validate_bags_in_main(bags_to_validate):
     return valid_in_main, invalid_in_main
 
 def compare_payload_manifests(valid_in_main, bag_paths):
-    dup_missing_file = []
-    unequal_hash = []
+    dup_missing_file = dict()
+    unequal_hash = dict()
     identical_bag = []
 
     for bag_key in valid_in_main:
@@ -88,15 +89,20 @@ def compare_payload_manifests(valid_in_main, bag_paths):
 
         for i in [x for x in bag_paths if x.name == bag_key]:
             dup_bag = bagit.Bag(str(i))
+
         dup_entries = dup_bag.payload_entries()
 
         counter = 0
         for e in main_entries:
             if not e in dup_entries:
-                dup_missing_file.append(e)
+                if not bag_key in dup_missing_file:
+                    dup_missing_file[bag_key] = []
+                dup_missing_file[bag_key].append(e)
                 counter += 1
             elif not main_entries[e] == dup_entries[e]:
-                unequal_hash.append(e)
+                if not bag_key in unequal_hash:
+                    unequal_hash[bag_key] = []
+                unequal_hash[bag_key].append(e)
                 counter += 1
         if counter == 0:
             identical_bag.append(bag_key)
@@ -126,8 +132,8 @@ def main():
         print(f'''
         Second check -- compare versions using payload manifests:
             {len(valid_main)} are valid in main: {valid_main.keys()}
-            Duplicate location is missing these file(s) {dup_missing_file}
-            These hashes are different in the two location {unequal_hash}
+            Duplicate location is missing these file(s) {pp.pformat(dup_missing_file)}
+            These hashes are different in the two location {pp.pformat(unequal_hash)}
             These bags are identical {identical}''')
 
 if __name__ == "__main__":
