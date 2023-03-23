@@ -47,6 +47,16 @@ def find_bags_in_dir(dir) -> dict:
 
     return bags_dict
 
+def compare_bags_dicts(dict_d, dict_m):
+    keys_d = set(dict_d.keys())
+    keys_m = set(dict_m.keys())
+
+    only_in_d = keys_d - keys_m
+    only_in_m = keys_m - keys_d
+    real_dups = keys_d.intersection(keys_m)
+
+    return only_in_d, only_in_m, real_dups
+
 def check_dupe_status_in_main(args, bag_ids):
     path_main = Path(args.directory_main)
 
@@ -115,6 +125,9 @@ def main():
 
     bags_d_dict = find_bags_in_dir(args.directory_duplicate)
     bags_m_dict = find_bags_in_dir(args.directory_main)
+
+    only_in_d, only_in_m, real_dups = compare_bags_dicts(bags_d_dict, bags_m_dict)
+
 
     # if validate_dir_paths(args):
     #     bag_paths, bag_ids = find_bags_in_dupe_dir(args)
