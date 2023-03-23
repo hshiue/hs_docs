@@ -125,7 +125,8 @@ def main():
         Second check -- for valid bags in both directories
         compare versions using payload manifests:
             {len(identical_bags)} bags are identical {identical_bags};
-            {len(unidentical_bags)} bags are not identical; review manually''')
+            {len(unidentical_bags)} bags are not identical: {unidentical_bags};
+            review manually''')
 
 if __name__ == "__main__":
     main()
