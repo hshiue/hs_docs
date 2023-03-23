@@ -84,14 +84,17 @@ def main():
     parser = _make_parser()
     args = parser.parse_args()
 
-    identical_bags = []
-    unidentical_bags = []
-
     if validate_dir_paths(args):
         bags_d_dict = find_bags_in_dir(args.directory_duplicate)
         bags_m_dict = find_bags_in_dir(args.directory_main)
 
         only_in_d, only_in_m, real_dups = compare_bags_dicts(bags_d_dict, bags_m_dict)
+        invalid_main = []
+        invalid_dup = []
+        invalid_both = []
+        identical_bags = []
+        unidentical_bags = []
+
         for dup in real_dups:
             if validate_bag(bags_d_dict, dup) and validate_bag(bags_m_dict, dup):
                 print(f'Now compare {dup} checksums here')
@@ -100,30 +103,29 @@ def main():
                 else:
                     unidentical_bags.append(dup)
             elif validate_bag(bags_d_dict, dup) == False and validate_bag(bags_m_dict, dup) == False:
-                logging.error(f'{dup} is not validate (completeness-only) in both directories')
+                invalid_both.append(dup)
             elif validate_bag(bags_d_dict, dup) == True and validate_bag(bags_m_dict, dup) == False:
-                logging.error(f'{dup} is only valid (completeness-only) in the duplicate directory')
+                invalid_main.append(dup)
             else:
-                logging.error(f'{dup} is valid (completeness-only) in main; not valid in duplicate directory')
+                invalid_dup.append(dup)
 
+        print(f'''
+        Bags ONLY in duplication directory: {only_in_d};
+        Bags ONLY in main directory: {only_in_m}
+        Bags in BOTH directories: {real_dups}
 
+        Checked {len(real_dups)} duplicated bags: {real_dups}
 
+        First check -- validate the bag in both directories:
+            {len(invalid_both)} bags are invalid in both directories, review manually: {invalid_both}
+            {len(invalid_main)} bags are invalid in the main directory, review manually: {invalid_main}
+            {len(invalid_dup)} bags are invalid in the dup directory, review manually: {invalid_dup}''')
 
-
-    #     print(f'''
-    #     Checked {len(bag_ids)} bags: {bag_ids}
-
-    #     {len(bags_not_in_main)} bags are not duplication, not in the main directory: {bags_not_in_main}
-    #     {len(bags_to_validate)} bags are potentially duplicated: {[b.name for b in bags_to_validate]}
-    #     First check -- validate the bag in main:
-    #         {len(invalid_main)} bags are invalid in the main directory, review manually: {invalid_main}''')
-
-    #     print(f'''
-    #     Second check -- compare versions using payload manifests:
-    #         {len(valid_main)} are valid in main: {valid_main.keys()}
-    #         Duplicate location is missing these file(s) {pp.pformat(dup_missing_file)}
-    #         These hashes are different in the two location {pp.pformat(unequal_hash)}
-    #         These bags are identical {identical}''')
+        print(f'''
+        Second check -- for valid bags in both directories
+        compare versions using payload manifests:
+            {len(identical_bags)} bags are identical {identical_bags};
+            {len(unidentical_bags)} bags are not identical; review manually''')
 
 if __name__ == "__main__":
     main()
