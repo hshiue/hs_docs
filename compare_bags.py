@@ -57,21 +57,17 @@ def compare_bags_dicts(dict_d, dict_m):
 
     return only_in_d, only_in_m, real_dups
 
-def validate_bags_in_main(bags_to_validate):
-    valid_in_main = dict()
-    invalid_in_main = []
+def validate_bag(bags_dict: dict, bag_id: str) -> bool:
+    bag_path = bags_dict[bag_id]
+    bag_to_validate = bagit.Bag(str(bag_path))
 
-    for bag_path in bags_to_validate:
-        bag_in_main = bagit.Bag(str(bag_path))
-        try:
-            print(f'checking {bag_in_main}')
-            bag_in_main.validate(completeness_only = True)
-            valid_in_main[bag_path.name] = bag_in_main
-        except bagit.BagValidationError as e:
-            logging.warning("Bag incomplete or invalid oxum: {0}".format(e.message))
-            invalid_in_main.append(bag_path.name)
-
-    return valid_in_main, invalid_in_main
+    try:
+        print(f'checking {bag_to_validate}')
+        bag_to_validate.validate(completeness_only = True)
+        return True
+    except bagit.BagValidationError as e:
+        logging.warning("Bag incomplete or invalid oxum: {0}".format(e.message))
+        return False
 
 def compare_payload_manifests(valid_in_main, bag_paths):
     dup_missing_file = dict()
@@ -108,10 +104,22 @@ def main():
     parser = _make_parser()
     args = parser.parse_args()
 
-    bags_d_dict = find_bags_in_dir(args.directory_duplicate)
-    bags_m_dict = find_bags_in_dir(args.directory_main)
+    if validate_dir_paths(args):
+        bags_d_dict = find_bags_in_dir(args.directory_duplicate)
+        bags_m_dict = find_bags_in_dir(args.directory_main)
 
-    only_in_d, only_in_m, real_dups = compare_bags_dicts(bags_d_dict, bags_m_dict)
+        only_in_d, only_in_m, real_dups = compare_bags_dicts(bags_d_dict, bags_m_dict)
+        for dup in real_dups:
+            if validate_bag(bags_d_dict, dup) and validate_bag(bags_m_dict, dup):
+                print('compare checksums here')
+            elif validate_bag(bags_d_dict, dup) == False and validate_bag(bags_m_dict, dup) == False:
+                logging.error(f'{dup} is not validate (completeness-only) in both directories')
+            elif validate_bag(bags_d_dict, dup) == True and validate_bag(bags_m_dict, dup) == False:
+                logging.error(f'{dup} is only valid (completeness-only) in the duplicate directory')
+            else:
+                logging.error(f'{dup} is valid (completeness-only) in main; not valid in duplicate directory')
+
+
 
 
     # if validate_dir_paths(args):
