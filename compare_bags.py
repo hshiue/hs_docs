@@ -57,21 +57,6 @@ def compare_bags_dicts(dict_d, dict_m):
 
     return only_in_d, only_in_m, real_dups
 
-def check_dupe_status_in_main(args, bag_ids):
-    path_main = Path(args.directory_main)
-
-    bags_not_in_main = []
-    bags_to_validate = []
-
-    for b in bag_ids:
-        bag_path = [x for x in path_main.rglob(b) if x.is_dir()]
-        if not bag_path:
-            bags_not_in_main.append(b)
-        else:
-            bags_to_validate.append(bag_path[0])
-
-    return bags_not_in_main, bags_to_validate
-
 def validate_bags_in_main(bags_to_validate):
     valid_in_main = dict()
     invalid_in_main = []
