@@ -69,40 +69,23 @@ def validate_bag(bags_dict: dict, bag_id: str) -> bool:
         logging.warning("Bag incomplete or invalid oxum: {0}".format(e.message))
         return False
 
-def compare_payload_manifests(valid_in_main, bag_paths):
-    dup_missing_file = dict()
-    unequal_hash = dict()
-    identical_bag = []
+def identify_duplication(bag_key, dir_d_dict, dir_m_dict) -> bool:
+    d_bag = bagit.Bag(str(dir_d_dict[bag_key]))
+    m_bag = bagit.Bag(str(dir_m_dict[bag_key]))
+    d_entries = d_bag.payload_entries()
+    m_entries = m_bag.payload_entries()
 
-    for bag_key in valid_in_main:
-        main_entries = valid_in_main[bag_key].payload_entries()
-
-        for i in [x for x in bag_paths if x.name == bag_key]:
-            dup_bag = bagit.Bag(str(i))
-
-        dup_entries = dup_bag.payload_entries()
-
-        counter = 0
-        for e in main_entries:
-            if not e in dup_entries:
-                if not bag_key in dup_missing_file:
-                    dup_missing_file[bag_key] = []
-                dup_missing_file[bag_key].append(e)
-                counter += 1
-            elif not main_entries[e] == dup_entries[e]:
-                if not bag_key in unequal_hash:
-                    unequal_hash[bag_key] = []
-                unequal_hash[bag_key].append(e)
-                counter += 1
-        if counter == 0:
-            identical_bag.append(bag_key)
-
-
-    return dup_missing_file, unequal_hash, identical_bag
+    if d_entries == m_entries:
+        return True
+    else:
+        return False
 
 def main():
     parser = _make_parser()
     args = parser.parse_args()
+
+    identical_bags = []
+    unidentical_bags = []
 
     if validate_dir_paths(args):
         bags_d_dict = find_bags_in_dir(args.directory_duplicate)
@@ -111,7 +94,11 @@ def main():
         only_in_d, only_in_m, real_dups = compare_bags_dicts(bags_d_dict, bags_m_dict)
         for dup in real_dups:
             if validate_bag(bags_d_dict, dup) and validate_bag(bags_m_dict, dup):
-                print('compare checksums here')
+                print(f'Now compare {dup} checksums here')
+                if identify_duplication(dup, bags_d_dict, bags_m_dict):
+                    identical_bags.append(dup)
+                else:
+                    unidentical_bags.append(dup)
             elif validate_bag(bags_d_dict, dup) == False and validate_bag(bags_m_dict, dup) == False:
                 logging.error(f'{dup} is not validate (completeness-only) in both directories')
             elif validate_bag(bags_d_dict, dup) == True and validate_bag(bags_m_dict, dup) == False:
@@ -122,13 +109,6 @@ def main():
 
 
 
-    # if validate_dir_paths(args):
-    #     bag_paths, bag_ids = find_bags_in_dupe_dir(args)
-    #     print(f'''{bag_ids}, {len(bag_ids)} will be checked in the main directory''')
-
-    #     bags_not_in_main, bags_to_validate = check_dupe_status_in_main(args, bag_ids)
-    #     valid_main, invalid_main = validate_bags_in_main(bags_to_validate)
-    #     dup_missing_file, unequal_hash, identical = compare_payload_manifests(valid_main, bag_paths)
 
     #     print(f'''
     #     Checked {len(bag_ids)} bags: {bag_ids}
