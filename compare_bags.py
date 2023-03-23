@@ -6,8 +6,9 @@ import re
 import pprint as pp
 
 def _make_parser():
-    parser = argparse.ArgumentParser(description='''Compare AMI bags in two locations
-                                     using their payload manifest entries''')
+    parser = argparse.ArgumentParser(description='''Compare AMI bags in two locations:
+                                    first, check the bag is really in both locations;
+                                    second, compare duplicated ones using their payload manifest entries''')
     parser.add_argument('-d_dupe', '--directory_duplicate',
                         help = '''required. Directory one is the directory with potential
                         duplicated bags. It should be a path to a directory of bags or a hard drive.''',
