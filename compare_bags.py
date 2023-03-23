@@ -3,7 +3,6 @@ import bagit
 import logging
 from pathlib import Path
 import re
-import pprint as pp
 
 def _make_parser():
     parser = argparse.ArgumentParser(description='''Compare AMI bags in two locations:
