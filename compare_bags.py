@@ -36,18 +36,16 @@ def validate_dir_paths(args):
     else:
         return True
 
-def find_bags_in_dupe_dir(args):
-    path_dup = Path(args.directory_duplicate)
-    bag_paths = []
-    bag_ids = []
+def find_bags_in_dir(dir) -> dict:
+    path = Path(dir)
+    bags_dict = dict()
     pattern = '^\d{6}$'
 
-    for p in path_dup.rglob('*'):
+    for p in path.rglob('*'):
         if p.is_dir() and re.match(pattern, p.name):
-            bag_paths.append(p)
-            bag_ids.append(p.name)
+            bags_dict[p.name] = p
 
-    return bag_paths, bag_ids
+    return bags_dict
 
 def check_dupe_status_in_main(args, bag_ids):
     path_main = Path(args.directory_main)
@@ -114,28 +112,32 @@ def compare_payload_manifests(valid_in_main, bag_paths):
 def main():
     parser = _make_parser()
     args = parser.parse_args()
-    if validate_dir_paths(args):
-        bag_paths, bag_ids = find_bags_in_dupe_dir(args)
-        print(f'''{bag_ids}, {len(bag_ids)} will be checked in the main directory''')
 
-        bags_not_in_main, bags_to_validate = check_dupe_status_in_main(args, bag_ids)
-        valid_main, invalid_main = validate_bags_in_main(bags_to_validate)
-        dup_missing_file, unequal_hash, identical = compare_payload_manifests(valid_main, bag_paths)
+    bags_d_dict = find_bags_in_dir(args.directory_duplicate)
+    bags_m_dict = find_bags_in_dir(args.directory_main)
 
-        print(f'''
-        Checked {len(bag_ids)} bags: {bag_ids}
+    # if validate_dir_paths(args):
+    #     bag_paths, bag_ids = find_bags_in_dupe_dir(args)
+    #     print(f'''{bag_ids}, {len(bag_ids)} will be checked in the main directory''')
 
-        {len(bags_not_in_main)} bags are not duplication, not in the main directory: {bags_not_in_main}
-        {len(bags_to_validate)} bags are potentially duplicated: {[b.name for b in bags_to_validate]}
-        First check -- validate the bag in main:
-            {len(invalid_main)} bags are invalid in the main directory, review manually: {invalid_main}''')
+    #     bags_not_in_main, bags_to_validate = check_dupe_status_in_main(args, bag_ids)
+    #     valid_main, invalid_main = validate_bags_in_main(bags_to_validate)
+    #     dup_missing_file, unequal_hash, identical = compare_payload_manifests(valid_main, bag_paths)
 
-        print(f'''
-        Second check -- compare versions using payload manifests:
-            {len(valid_main)} are valid in main: {valid_main.keys()}
-            Duplicate location is missing these file(s) {pp.pformat(dup_missing_file)}
-            These hashes are different in the two location {pp.pformat(unequal_hash)}
-            These bags are identical {identical}''')
+    #     print(f'''
+    #     Checked {len(bag_ids)} bags: {bag_ids}
+
+    #     {len(bags_not_in_main)} bags are not duplication, not in the main directory: {bags_not_in_main}
+    #     {len(bags_to_validate)} bags are potentially duplicated: {[b.name for b in bags_to_validate]}
+    #     First check -- validate the bag in main:
+    #         {len(invalid_main)} bags are invalid in the main directory, review manually: {invalid_main}''')
+
+    #     print(f'''
+    #     Second check -- compare versions using payload manifests:
+    #         {len(valid_main)} are valid in main: {valid_main.keys()}
+    #         Duplicate location is missing these file(s) {pp.pformat(dup_missing_file)}
+    #         These hashes are different in the two location {pp.pformat(unequal_hash)}
+    #         These bags are identical {identical}''')
 
 if __name__ == "__main__":
     main()
