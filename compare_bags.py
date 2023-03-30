@@ -5,22 +5,26 @@ from pathlib import Path
 import re
 
 def _make_parser():
-    parser = argparse.ArgumentParser(description='''Compare AMI bags in two locations:
-                                    first, check the bag is really in both locations;
-                                    second, compare duplicated ones using their payload manifest entries''')
+    parser = argparse.ArgumentParser(
+                        description='''Compare AMI bags in two locations:
+                        first, check the bag is really in both locations;
+                        second, compare duplicated ones using their payload
+                        manifest entries''')
     parser.add_argument('-d_dupe', '--directory_duplicate',
-                        help = '''required. Directory one is the directory with potential
-                        duplicated bags. It should be a path to a directory of bags or a hard drive.''',
+                        help = '''required. Directory one is the directory with
+                        potential duplicated bags. It should be a path to a
+                        directory of bags or a hard drive.''',
                         required=True)
     parser.add_argument('-d_main', '--directory_main',
-                        help = f'''required. Directory two is the directory to be compared against,
-                        supposedly having the authoritative source.
-                        It should be a path to a directory of bags or a hard drive.''',
+                        help = f'''required. Directory two is the directory to
+                        be compared against, supposedly having the authoritative
+                        source. It should be a path to a directory of bags or a
+                        hard drive.''',
                         required=True)
 
     return parser
 
-def validate_dir_paths(args):
+def validate_dir_paths(args) -> bool:
     path_dup = Path(args.directory_duplicate)
     path_main = Path(args.directory_main)
 
@@ -35,7 +39,7 @@ def validate_dir_paths(args):
     else:
         return True
 
-def find_bags_in_dir(dir) -> dict:
+def find_bags_in_dir(dir: str) -> dict[str, Path]:
     path = Path(dir)
     bags_dict = dict()
     pattern = '^\d{6}$'
@@ -46,7 +50,7 @@ def find_bags_in_dir(dir) -> dict:
 
     return bags_dict
 
-def compare_bags_dicts(dict_d, dict_m):
+def compare_bags_dicts(dict_d: dict, dict_m: dict) -> tuple[set, set, set]:
     keys_d = set(dict_d.keys())
     keys_m = set(dict_m.keys())
 
@@ -88,6 +92,7 @@ def main():
         bags_m_dict = find_bags_in_dir(args.directory_main)
 
         only_in_d, only_in_m, real_dups = compare_bags_dicts(bags_d_dict, bags_m_dict)
+
         invalid_main = []
         invalid_dup = []
         invalid_both = []
@@ -95,6 +100,7 @@ def main():
         unidentical_bags = []
 
         for dup in real_dups:
+
             if validate_bag(bags_d_dict, dup) and validate_bag(bags_m_dict, dup):
                 print(f'Now compare {dup} checksums here')
                 if identify_duplication(dup, bags_d_dict, bags_m_dict):
