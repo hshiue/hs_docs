@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
+from pathlib import Path
 import subprocess
-import glob
 import re
 import json
 import warnings
@@ -32,8 +31,19 @@ def get_args():
     args = parser.parse_args()
     return args
 
+def get_files(dir: Path):
 
 def main():
+    '''
+    1. get a directory of files
+    2. validate filename convention
+    3. get the filename from the media and the AMI ID
+    4. check the media file has a corresponding json (set comparison)
+    5. validate json referenceFilename field
+    6. validate json barcode field (starts with 33433)
+    7. create a check_bucket function for check_only arg
+
+    '''
     arguments = get_args()
 
 
