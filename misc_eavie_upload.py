@@ -31,7 +31,12 @@ def get_args():
     args = parser.parse_args()
     return args
 
-def get_files(dir: Path):
+def validate_dir(dir: Path) -> bool:
+    if dir.is_dir():
+        return True
+    else:
+        return False
+
 
 def main():
     '''
@@ -44,7 +49,9 @@ def main():
     7. create a check_bucket function for check_only arg
 
     '''
-    arguments = get_args()
+    args = get_args()
+    if validate_dir(args.directory):
+
 
 
 if __name__ == '__main__':
