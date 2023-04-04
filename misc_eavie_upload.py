@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import re
 import json
-import warnings
+import logging
 
 def get_args():
     parser = argparse.ArgumentParser(description='''Upload access copies and JSON
@@ -32,7 +32,8 @@ def get_args():
     return args
 
 def validate_dir(dir: Path) -> bool:
-    if dir.is_dir():
+    dir_p = Path(dir)
+    if dir_p.is_dir():
         return True
     else:
         return False
@@ -45,6 +46,24 @@ def validate_filename(filepaths: list) -> bool:
             return True
         else:
             return False
+
+def get_ami_dict(filepaths: list) -> dict:
+    ami_dict = dict()
+    expected = r'\d{6}'
+    media_exts = ['.mp4', '.wav', '.flac']
+    media_paths = [x for x in filepaths if x.suffix.lower() in media_exts]
+    json_paths = [x for x in filepaths if x.suffix.lower() == '.json']
+
+    for media_p in media_paths:
+        filename = media_p.stem
+        for json_p in json_paths:
+            if json_p.stem == filename:
+                id = re.search(expected, media_p.stem).group(0)
+                if id:
+                    ami_dict[id] = [media_p, json_p]
+
+    return ami_dict
+
 
 def main():
     '''
@@ -61,7 +80,10 @@ def main():
     dir = args.directory
 
     if validate_dir(dir):
-        all_filepaths = [x for x in dir.iterdir() if x.is_file()]
+        all_filepaths = [x for x in Path(dir).iterdir() if x.is_file()]
+        if validate_filename(all_filepaths):
+            ami_dict = get_ami_dict(all_filepaths)
+
 
 
 
