@@ -37,18 +37,20 @@ def validate_dir(dir: Path) -> bool:
     else:
         return False
 
-def get_media_and_json_filepaths(dir: Path) -> tuple:
-    media_ext = ['.mp4', '.wav', '.flac']
-    media_fps = [x for x in dir.iterdir() if x.suffix.lower() in media_ext]
-    json_fps = [x for x in dir.iterdir() if x.suffix.lower() == '.json']
-
-    return media_fps, json_fps
+def validate_filename(filepaths: list) -> bool:
+    fn_convention = r'(\w{3}_\d{6}_\w+_(sc|em))'
+    for fp in filepaths:
+        match = re.fullmatch(fn_convention, fp.stem)
+        if match:
+            return True
+        else:
+            return False
 
 def main():
     '''
     1. get a directory of files
     2. validate filename convention
-    3. get the filename from the media and the AMI ID
+    3. get the filename from the media and the AMI ID (stem)
     4. check the media file has a corresponding json (set comparison)
     5. validate json referenceFilename field
     6. validate json barcode field (starts with 33433)
@@ -56,8 +58,12 @@ def main():
 
     '''
     args = get_args()
-    if validate_dir(args.directory):
-        media_filepaths, json_filepaths = get_media_and_json_filepaths(args.directory)
+    dir = args.directory
+
+    if validate_dir(dir):
+        all_filepaths = [x for x in dir.iterdir() if x.is_file()]
+
+
 
 
 
