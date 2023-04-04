@@ -37,6 +37,12 @@ def validate_dir(dir: Path) -> bool:
     else:
         return False
 
+def get_media_and_json_filepaths(dir: Path) -> tuple:
+    media_ext = ['.mp4', '.wav', '.flac']
+    media_fps = [x for x in dir.iterdir() if x.suffix.lower() in media_ext]
+    json_fps = [x for x in dir.iterdir() if x.suffix.lower() == '.json']
+
+    return media_fps, json_fps
 
 def main():
     '''
@@ -51,6 +57,7 @@ def main():
     '''
     args = get_args()
     if validate_dir(args.directory):
+        media_filepaths, json_filepaths = get_media_and_json_filepaths(args.directory)
 
 
 
