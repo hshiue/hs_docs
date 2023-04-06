@@ -64,6 +64,7 @@ def validate_filename(filepath: Path) -> bool:
     if match:
         return True
     else:
+        LOGGER.warning(f'{filepath.stem} filenaming incorrect')
         return False
 
 def validate_json_ref_filename(media_p: Path, json_p: Path) -> bool:
@@ -73,6 +74,7 @@ def validate_json_ref_filename(media_p: Path, json_p: Path) -> bool:
     if json_name == media_p.name:
         return True
     else:
+        LOGGER.warning(f'{json_name} and {media_p.name} are different')
         return False
 
 def validate_json_barcode(json_p: Path) -> bool:
@@ -85,6 +87,7 @@ def validate_json_barcode(json_p: Path) -> bool:
     if match:
         return True
     else:
+        LOGGER.warning(f'{barcode} is incorrect')
         return False
 
 def absent_in_bucket(filepath: Path) -> Path:
@@ -149,6 +152,11 @@ def main():
                     all_absent_paths.append(ab_media)
                 elif ab_json:
                     all_absent_paths.append(ab_json)
+
+            else:
+                LOGGER.warning(f'{ami_key} has file(s) not validated.')
+
+        if args.check_only:
 
 
 
