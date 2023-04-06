@@ -91,6 +91,7 @@ def validate_json_barcode(json_p: Path) -> bool:
         return False
 
 def absent_in_bucket(filepath: Path) -> Path:
+    absent = ''
     check_cmd = ['aws', 's3api', 'head-object',
                 '--bucket', 'ami-carnegie-servicecopies',
                 '--key', '']
@@ -107,7 +108,15 @@ def absent_in_bucket(filepath: Path) -> Path:
             if not output_mp4:
                 LOGGER.warning(f'{filepath.name} not in the bucket')
                 absent = filepath
-    if filepath.suffix.lower() == '.json':
+    elif filepath.suffix.lower() == '.mp4':
+        check_cmd[-1] = filepath.name
+        LOGGER.info(f'Now checking {filepath.name}')
+        output_mp4_media = subprocess.run(check_cmd,
+                                               capture_output=True).stdout
+        if not output_mp4_media:
+            LOGGER.warning(f'{filepath.name} not in the bucket')
+            absent = filepath
+    elif filepath.suffix.lower() == '.json':
         check_cmd[-1] = filepath.name
         print(check_cmd)
         output_json_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
@@ -125,7 +134,7 @@ def cp_files(filepaths: list) -> None:
             's3://ami-carnegie-servicecopies'
             ]
         print(cp_command)
-        #subprocess.call(cp_command)
+        subprocess.call(cp_command)
 
 def main():
     '''
@@ -160,7 +169,7 @@ def main():
                 ab_media, ab_json = absent_in_bucket(media_p), absent_in_bucket(json_p)
                 if ab_media:
                     all_absent_paths.append(ab_media)
-                elif ab_json:
+                if ab_json:
                     all_absent_paths.append(ab_json)
 
             else:
