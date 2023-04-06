@@ -104,10 +104,19 @@ def main():
     if validate_dir(dir):
         all_filepaths = [x for x in Path(dir).iterdir() if x.is_file()]
         ami_dict = get_ami_dict(all_filepaths)
+
         for ami_key in ami_dict:
             if not len(ami_dict[ami_key]) == 2:
                 LOGGER.error(f'{ami_key} does not have both media and json file')
+
             media_p, json_p = ami_dict[ami_key][0], ami_dict[ami_key][1]
+
+            if (validate_filename(media_p) and
+                validate_filename(json_p) and
+                validate_json_ref_filename(media_p, json_p) and
+                validate_json_barcode(json_p)):
+
+
 
 
 
