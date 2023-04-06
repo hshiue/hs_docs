@@ -62,15 +62,19 @@ def get_ami_dict(filepaths: list) -> dict:
                 if id:
                     ami_dict[id] = [media_p, json_p]
 
+    for ami_key in ami_dict:
+        if not len(ami_dict[ami_key]) == 2:
+            logging.error(f'{ami_key} does not have both media and json file')
+
     return ami_dict
 
 
 def main():
     '''
-    1. get a directory of files
-    2. validate filename convention
-    3. get the filename from the media and the AMI ID (stem)
-    4. check the media file has a corresponding json (set comparison)
+    1. get a directory of files V
+    2. validate filename convention V
+    3. get the filename from the media and the AMI ID (stem) V
+    4. check the media file has a corresponding json V
     5. validate json referenceFilename field
     6. validate json barcode field (starts with 33433)
     7. create a check_bucket function for check_only arg
