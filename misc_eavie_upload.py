@@ -164,13 +164,12 @@ def main():
 
                 if args.direct_upload:
                     cp_files(ami_dict[ami_key])
-
-                ab_media, ab_json = absent_in_bucket(media_p), absent_in_bucket(json_p)
-                if ab_media:
-                    all_absent_paths.append(ab_media)
-                if ab_json:
-                    all_absent_paths.append(ab_json)
-
+                else:
+                    ab_media, ab_json = absent_in_bucket(media_p), absent_in_bucket(json_p)
+                    if ab_media:
+                        all_absent_paths.append(ab_media)
+                    if ab_json:
+                        all_absent_paths.append(ab_json)
             else:
                 LOGGER.warning(f'{ami_key} has file(s) not validated.')
 
