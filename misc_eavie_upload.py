@@ -117,6 +117,16 @@ def absent_in_bucket(filepath: Path) -> Path:
 
     return absent
 
+def cp_files(filepaths: list) -> None:
+    for file in filepaths:
+        cp_command = [
+            'aws', 's3', 'cp',
+            file,
+            's3://ami-carnegie-servicecopies'
+            ]
+        print(cp_command)
+        subprocess.call(cp_command)
+
 def main():
     '''
     1. get a directory of files V
@@ -156,22 +166,15 @@ def main():
             else:
                 LOGGER.warning(f'{ami_key} has file(s) not validated.')
 
-        if args.check_only:
+        if args.check_only and len(all_absent_paths) > 0:
+            LOGGER.info(f'These files are not in the bucket: {all_absent_paths}')
+        elif len(all_absent_paths) == 0:
+            LOGGER.info(f'All validated files are in the bucket')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if args.check_and_upload and len(all_absent_paths) > 0:
+            cp_files(all_absent_paths)
+        elif len(all_absent_paths) == 0:
+            LOGGER.info(f'All validated files are in the bucket')
 
 if __name__ == '__main__':
     main()
