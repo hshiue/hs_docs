@@ -75,9 +75,17 @@ def validate_json_ref_filename(media_p: Path, json_p: Path) -> bool:
     else:
         return False
 
+def validate_json_barcode(json_p: Path) -> bool:
+    with open(json_p, "r", encoding='utf-8-sig') as jsonFile:
+        data = json.load(jsonFile)
+        barcode = data['bibliographic']['barcode']
+        match = re.match(r'33433', barcode)
+        # re.match() matches the beginning of the string
 
-
-
+    if match:
+        return True
+    else:
+        return False
 
 def main():
     '''
@@ -100,6 +108,7 @@ def main():
             if not len(ami_dict[ami_key]) == 2:
                 LOGGER.error(f'{ami_key} does not have both media and json file')
             media_p, json_p = ami_dict[ami_key][0], ami_dict[ami_key][1]
+
 
 
 
