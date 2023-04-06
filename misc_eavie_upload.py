@@ -10,6 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
+
 def get_args():
     parser = argparse.ArgumentParser(description='''Upload access copies and JSON
                                      directly from a folder to EAVie. Perform
@@ -97,20 +98,20 @@ def absent_in_bucket(filepath: Path) -> Path:
                 '--key', '']
     if filepath.suffix.lower() == '.flac' or filepath.suffix.lower() == '.wav':
         check_cmd[-1] = filepath.name
-        LOGGER.info(f'Now checking {filepath.name}')
+        LOGGER.info(f'Now checking if {filepath.name} is in bucket')
         output_original_media = subprocess.run(check_cmd,
                                                capture_output=True).stdout
         if not output_original_media:
             mp4_key = filepath.name.replace('flac', 'mp4').replace('wav', 'mp4')
             check_cmd[-1] = mp4_key
-            LOGGER.info(f'Now checking {mp4_key}')
+            LOGGER.info(f'Now checking if {mp4_key} is in bucket')
             output_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
             if not output_mp4:
                 LOGGER.warning(f'{filepath.name} not in the bucket')
                 absent = filepath
     elif filepath.suffix.lower() == '.mp4':
         check_cmd[-1] = filepath.name
-        LOGGER.info(f'Now checking {filepath.name}')
+        LOGGER.info(f'Now checking if {filepath.name} is in bucket')
         output_mp4_media = subprocess.run(check_cmd,
                                                capture_output=True).stdout
         if not output_mp4_media:
@@ -118,7 +119,7 @@ def absent_in_bucket(filepath: Path) -> Path:
             absent = filepath
     elif filepath.suffix.lower() == '.json':
         check_cmd[-1] = filepath.name
-        print(check_cmd)
+        LOGGER.info(f'Now checking if {filepath.name} is in bucket')
         output_json_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
         if not output_json_mp4:
             LOGGER.warning(f'{filepath.name} not in the bucket')
@@ -134,7 +135,7 @@ def cp_files(filepaths: list) -> None:
             's3://ami-carnegie-servicecopies'
             ]
         print(cp_command)
-        subprocess.call(cp_command)
+        #subprocess.call(cp_command)
 
 def main():
     '''
@@ -165,6 +166,7 @@ def main():
                 validate_filename(json_p) and
                 validate_json_ref_filename(media_p, json_p) and
                 validate_json_barcode(json_p)):
+                LOGGER.info(f'{ami_key} filenames and JSON all validated')
 
                 ab_media, ab_json = absent_in_bucket(media_p), absent_in_bucket(json_p)
                 if ab_media:
