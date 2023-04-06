@@ -139,19 +139,9 @@ def cp_files(filepaths: list) -> None:
             's3://ami-carnegie-servicecopies'
             ]
         print(cp_command)
-        #subprocess.call(cp_command)
+        subprocess.call(cp_command)
 
 def main():
-    '''
-    1. get a directory of files V
-    2. validate filename convention
-    3. get the filename from the media and the AMI ID (stem) V
-    4. check the media file has a corresponding json V
-    5. validate json referenceFilename field
-    6. validate json barcode field (starts with 33433)
-    7. create a check_bucket function for check_only arg
-
-    '''
     args = get_args()
     dir = args.directory
 
