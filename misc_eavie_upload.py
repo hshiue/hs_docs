@@ -7,6 +7,9 @@ import re
 import json
 import logging
 
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
+
 def get_args():
     parser = argparse.ArgumentParser(description='''Upload access copies and JSON
                                      directly from a folder to EAVie. Perform
