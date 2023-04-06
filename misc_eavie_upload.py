@@ -107,7 +107,7 @@ def absent_in_bucket(filepath: Path) -> Path:
             if not output_mp4:
                 LOGGER.warning(f'{filepath.name} not in the bucket')
                 absent = filepath
-    if filepath.suffic.lower() == '.json':
+    if filepath.suffix.lower() == '.json':
         check_cmd[-1] = filepath.name
         print(check_cmd)
         output_json_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
@@ -125,7 +125,7 @@ def cp_files(filepaths: list) -> None:
             's3://ami-carnegie-servicecopies'
             ]
         print(cp_command)
-        subprocess.call(cp_command)
+        #subprocess.call(cp_command)
 
 def main():
     '''
