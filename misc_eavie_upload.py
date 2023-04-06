@@ -87,29 +87,30 @@ def validate_json_barcode(json_p: Path) -> bool:
     else:
         return False
 
-def absent_in_bucket(filepath: Path) -> list:
-    absent = []
+def absent_in_bucket(filepath: Path) -> Path:
     check_cmd = ['aws', 's3api', 'head-object',
                 '--bucket', 'ami-carnegie-servicecopies',
                 '--key', '']
     if filepath.suffix.lower() == '.flac' or filepath.suffix.lower() == '.wav':
         check_cmd[-1] = filepath.name
-        print(check_cmd)
+        LOGGER.info(f'Now checking {filepath.name}')
         output_original_media = subprocess.run(check_cmd,
                                                capture_output=True).stdout
         if not output_original_media:
             mp4_key = filepath.name.replace('flac', 'mp4').replace('wav', 'mp4')
             check_cmd[-1] = mp4_key
-            print(check_cmd)
+            LOGGER.info(f'Now checking {mp4_key}')
             output_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
             if not output_mp4:
-                absent.append(filepath)
+                LOGGER.warning(f'{filepath.name} not in the bucket')
+                absent = filepath
     if filepath.suffic.lower() == '.json':
         check_cmd[-1] = filepath.name
         print(check_cmd)
-        output_json_mp4 = subprocess.run(cmd, capture_output=True).stdout
+        output_json_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
         if not output_json_mp4:
-            absent.append(filepath)
+            LOGGER.warning(f'{filepath.name} not in the bucket')
+            absent = filepath
 
     return absent
 
@@ -130,6 +131,7 @@ def main():
     if validate_dir(dir):
         all_filepaths = [x for x in Path(dir).iterdir() if x.is_file()]
         ami_dict = get_ami_dict(all_filepaths)
+        all_absent_paths = []
 
         for ami_key in ami_dict:
             if not len(ami_dict[ami_key]) == 2:
@@ -141,6 +143,16 @@ def main():
                 validate_filename(json_p) and
                 validate_json_ref_filename(media_p, json_p) and
                 validate_json_barcode(json_p)):
+
+                ab_media, ab_json = absent_in_bucket(media_p), absent_in_bucket(json_p)
+                if ab_media:
+                    all_absent_paths.append(ab_media)
+                elif ab_json:
+                    all_absent_paths.append(ab_json)
+
+
+
+
 
 
 
