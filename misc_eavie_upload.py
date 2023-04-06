@@ -41,15 +41,6 @@ def validate_dir(dir: Path) -> bool:
     else:
         return False
 
-def validate_filename(filepaths: list) -> bool:
-    fn_convention = r'(\w{3}_\d{6}_\w+_(sc|em))'
-    for fp in filepaths:
-        match = re.fullmatch(fn_convention, fp.stem)
-        if match:
-            return True
-        else:
-            return False
-
 def get_ami_dict(filepaths: list) -> dict:
     ami_dict = dict()
     expected = r'\d{6}'
@@ -71,11 +62,20 @@ def get_ami_dict(filepaths: list) -> dict:
 
     return ami_dict
 
+def validate_filename(filepaths: list) -> bool:
+    fn_convention = r'(\w{3}_\d{6}_\w+_(sc|em))'
+    for fp in filepaths:
+        match = re.fullmatch(fn_convention, fp.stem)
+        if match:
+            return True
+        else:
+            return False
+
 
 def main():
     '''
     1. get a directory of files V
-    2. validate filename convention V
+    2. validate filename convention
     3. get the filename from the media and the AMI ID (stem) V
     4. check the media file has a corresponding json V
     5. validate json referenceFilename field
@@ -88,8 +88,8 @@ def main():
 
     if validate_dir(dir):
         all_filepaths = [x for x in Path(dir).iterdir() if x.is_file()]
-        if validate_filename(all_filepaths):
-            ami_dict = get_ami_dict(all_filepaths)
+        ami_dict = get_ami_dict(all_filepaths)
+
 
 
 
