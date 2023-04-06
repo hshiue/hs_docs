@@ -87,6 +87,32 @@ def validate_json_barcode(json_p: Path) -> bool:
     else:
         return False
 
+def check_bucket(filepath: Path) -> list:
+    absent = []
+    check_cmd = ['aws', 's3api', 'head-object',
+                '--bucket', 'ami-carnegie-servicecopies',
+                '--key', '']
+    if filepath.suffix.lower() == '.flac' or filepath.suffix.lower() == '.wav':
+        check_cmd[-1] = filepath.name
+        print(check_cmd)
+        output_original_media = subprocess.run(check_cmd,
+                                               capture_output=True).stdout
+        if not output_original_media:
+            mp4_key = filepath.name.replace('flac', 'mp4').replace('wav', 'mp4')
+            check_cmd[-1] = mp4_key
+            print(check_cmd)
+            output_mp4 = subprocess.run(check_cmd, capture_output=True).stdout
+            if not output_mp4:
+                absent.append(filepath)
+    if filepath.suffic.lower() == '.json':
+        check_cmd[-1] = filepath.name
+        print(check_cmd)
+        output_json_mp4 = subprocess.run(cmd, capture_output=True).stdout
+        if not output_json_mp4:
+            absent.append(filepath)
+
+    return absent
+
 def main():
     '''
     1. get a directory of files V
