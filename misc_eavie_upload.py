@@ -18,9 +18,13 @@ def get_args():
                                      check_only arg to check if the files are
                                      on EAVie''')
     parser.add_argument('-d', '--directory',
-                        help = '''required. A path to directory of access files
+                        help = f'''required. A path to directory of access files
                         and corresponding JSONs''',
                         required=True)
+    parser.add_argument('--direct_upload',
+                        action='store_true',
+                        help = f'''validate files and upload validated files;
+                        does not check whether the file is in the bucket''')
     parser.add_argument('-c', '--check_only',
                         action='store_true',
                         help = f'''check if all files from the directory
@@ -167,6 +171,9 @@ def main():
                 validate_json_ref_filename(media_p, json_p) and
                 validate_json_barcode(json_p)):
                 LOGGER.info(f'{ami_key} filenames and JSON all validated')
+
+                if args.direct_upload:
+                    cp_files(ami_dict[ami_key])
 
                 ab_media, ab_json = absent_in_bucket(media_p), absent_in_bucket(json_p)
                 if ab_media:
