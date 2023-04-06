@@ -67,7 +67,7 @@ def get_ami_dict(filepaths: list) -> dict:
 
     for ami_key in ami_dict:
         if not len(ami_dict[ami_key]) == 2:
-            logging.error(f'{ami_key} does not have both media and json file')
+            LOGGER.error(f'{ami_key} does not have both media and json file')
 
     return ami_dict
 
