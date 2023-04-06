@@ -56,20 +56,15 @@ def get_ami_dict(filepaths: list) -> dict:
                 if id:
                     ami_dict[id] = [media_p, json_p]
 
-    for ami_key in ami_dict:
-        if not len(ami_dict[ami_key]) == 2:
-            LOGGER.error(f'{ami_key} does not have both media and json file')
-
     return ami_dict
 
-def validate_filename(filepaths: list) -> bool:
+def validate_filename(filepath: Path) -> bool:
     fn_convention = r'(\w{3}_\d{6}_\w+_(sc|em))'
-    for fp in filepaths:
-        match = re.fullmatch(fn_convention, fp.stem)
-        if match:
-            return True
-        else:
-            return False
+    match = re.fullmatch(fn_convention, filepath.stem)
+    if match:
+        return True
+    else:
+        return False
 
 
 def main():
@@ -89,6 +84,10 @@ def main():
     if validate_dir(dir):
         all_filepaths = [x for x in Path(dir).iterdir() if x.is_file()]
         ami_dict = get_ami_dict(all_filepaths)
+        for ami_key in ami_dict:
+            if not len(ami_dict[ami_key]) == 2:
+                LOGGER.error(f'{ami_key} does not have both media and json file')
+
 
 
 
