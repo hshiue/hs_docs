@@ -87,7 +87,7 @@ def validate_json_barcode(json_p: Path) -> bool:
     else:
         return False
 
-def check_bucket(filepath: Path) -> list:
+def absent_in_bucket(filepath: Path) -> list:
     absent = []
     check_cmd = ['aws', 's3api', 'head-object',
                 '--bucket', 'ami-carnegie-servicecopies',
