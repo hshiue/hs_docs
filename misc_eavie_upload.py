@@ -173,15 +173,18 @@ def main():
             else:
                 LOGGER.warning(f'{ami_key} has file(s) not validated.')
 
-        if args.check_only and len(all_absent_paths) > 0:
-            LOGGER.info(f'These files are not in the bucket: {all_absent_paths}')
-        elif len(all_absent_paths) == 0:
-            LOGGER.info(f'All validated files are in the bucket')
+        if args.check_only:
+            if len(all_absent_paths) > 0:
+                LOGGER.info(f'These files are not in the bucket: {all_absent_paths}')
+            elif len(all_absent_paths) == 0:
+                LOGGER.info(f'All validated files are in the bucket')
 
-        if args.check_and_upload and len(all_absent_paths) > 0:
-            cp_files(all_absent_paths)
-        elif len(all_absent_paths) == 0:
-            LOGGER.info(f'All validated files are in the bucket')
+        if args.check_and_upload:
+            if len(all_absent_paths) > 0:
+                cp_files(all_absent_paths)
+            elif len(all_absent_paths) == 0:
+                LOGGER.info(f'''All validated files are in the bucket.
+                              No files to upload''')
 
 if __name__ == '__main__':
     main()
