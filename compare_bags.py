@@ -115,9 +115,9 @@ def main():
                 invalid_dup.append(dup)
 
         print(f'''
-        Bags ONLY in duplication directory: {only_in_d};
-        Bags ONLY in main directory: {only_in_m}
-        Bags in BOTH directories: {real_dups}
+        {len(only_in_d)} bags ONLY in duplication directory: {only_in_d};
+        {len(only_in_m)} bags ONLY in main directory: {only_in_m}
+        {len(real_dups)} bags in BOTH directories: {real_dups}
 
         Checked {len(real_dups)} duplicated bags: {real_dups}
 
