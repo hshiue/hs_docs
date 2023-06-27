@@ -24,6 +24,16 @@ def _make_parser():
 
     return parser
 
+def _configure_logging(args):
+    fn = Path(args.directory_main).name
+
+    logging.basicConfig(level=logging.WARNING,
+                        format = "%(asctime)s - %(levelname)8s - %(message)s",
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        filename=f'{fn}.log',
+                        encoding='utf-8'
+                        )
+
 def validate_dir_paths(args) -> bool:
     path_dup = Path(args.directory_duplicate)
     path_main = Path(args.directory_main)
@@ -65,14 +75,14 @@ def validate_bag(bags_dict: dict, bag_id: str) -> bool:
     bag_to_validate = bagit.Bag(str(bag_path))
 
     try:
-        print(f'checking {bag_to_validate}')
+        # print(f'checking {bag_to_validate}')
         bag_to_validate.validate(completeness_only = True)
         return True
     except bagit.BagValidationError as e:
         logging.warning("Bag incomplete or invalid oxum: {0}".format(e.message))
         return False
 
-def identify_duplication(bag_key, dir_d_dict, dir_m_dict) -> bool:
+def identify_duplication(bag_key, dir_d_dict, dir_m_dict):
     d_bag = bagit.Bag(str(dir_d_dict[bag_key]))
     m_bag = bagit.Bag(str(dir_m_dict[bag_key]))
     d_entries = d_bag.payload_entries()
@@ -80,12 +90,26 @@ def identify_duplication(bag_key, dir_d_dict, dir_m_dict) -> bool:
 
     if d_entries == m_entries:
         return True
+
     else:
+        d_fn_set = set(d_entries.keys())
+        m_fn_set = set(m_entries.keys())
+
+        if d_fn_set == m_fn_set:
+            for fn in d_entries:
+                if d_entries[fn] != m_entries[fn]: # same key, but different checksums
+                    file_path = dir_m_dict[bag_key] / fn
+                    logging.error(f'{file_path} is authoritative source file')
+
+        else: # if the set of keys (filenames) are different, you need to look at it individually
+            logging.error(f'There are different filenames for {bag_key}')
+
         return False
 
 def main():
     parser = _make_parser()
     args = parser.parse_args()
+    _configure_logging(args)
 
     if validate_dir_paths(args):
         bags_d_dict = find_bags_in_dir(args.directory_duplicate)
@@ -99,20 +123,22 @@ def main():
         identical_bags = []
         unidentical_bags = []
 
-        for dup in real_dups:
+        for dup_id in real_dups:
 
-            if validate_bag(bags_d_dict, dup) and validate_bag(bags_m_dict, dup):
-                print(f'Now compare {dup} checksums here')
-                if identify_duplication(dup, bags_d_dict, bags_m_dict):
-                    identical_bags.append(dup)
+            if validate_bag(bags_d_dict, dup_id) and validate_bag(bags_m_dict, dup_id):
+                if identify_duplication(dup_id, bags_d_dict, bags_m_dict):
+                    identical_bags.append(dup_id)
                 else:
-                    unidentical_bags.append(dup)
-            elif validate_bag(bags_d_dict, dup) == False and validate_bag(bags_m_dict, dup) == False:
-                invalid_both.append(dup)
-            elif validate_bag(bags_d_dict, dup) == True and validate_bag(bags_m_dict, dup) == False:
-                invalid_main.append(dup)
+                    unidentical_bags.append(dup_id)
+            elif validate_bag(bags_d_dict, dup_id) == False and validate_bag(bags_m_dict, dup_id) == False:
+                invalid_both.append(dup_id)
+            elif validate_bag(bags_d_dict, dup_id) == True and validate_bag(bags_m_dict, dup_id) == False:
+                invalid_main.append(dup_id)
             else:
-                invalid_dup.append(dup)
+                invalid_dup.append(dup_id)
+
+        logging.error(f'{only_in_d} ONLY in duplication directory')
+        logging.error(f'{only_in_m} ONLY in main directory')
 
         print(f'''
         {len(only_in_d)} bags ONLY in duplication directory: {only_in_d};
@@ -130,8 +156,9 @@ def main():
         Second check -- for valid bags in both directories
         compare versions using payload manifests:
             {len(identical_bags)} bags are identical {identical_bags};
+
             {len(unidentical_bags)} bags are not identical: {unidentical_bags};
-            review manually''')
+            check the log file in present directory''')
 
 if __name__ == "__main__":
     main()
