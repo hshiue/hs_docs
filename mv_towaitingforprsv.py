@@ -16,7 +16,8 @@ def find_bags(dir_path: str) -> dict:
     basepath = Path(dir_path) # /Volumes/parking/lpa/1_prestaging/2023-06-07
     for pjpath in basepath.iterdir():
         for ami_bag in pjpath.iterdir():
-            bag_dict[ami_bag.name] = ami_bag
+            bag_dict[ami_bag.name] = []
+            bag_dict[ami_bag.name].append(ami_bag)
 
     return bag_dict
 
