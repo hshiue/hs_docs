@@ -54,7 +54,10 @@ def find_bags_in_dir(dir: str) -> dict[str, Path]:
     bags_dict = dict()
     pattern = '^\d{6}$'
 
-    for p in path.rglob('*'):
+    if re.match(pattern, path.name): # this identifies single bag
+        bags_dict[path.name] = path
+
+    for p in path.rglob('*'): # this identifies a dir of bags
         if p.is_dir() and re.match(pattern, p.name):
             bags_dict[p.name] = p
 
