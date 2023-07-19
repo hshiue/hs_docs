@@ -1,5 +1,6 @@
 import argparse
 import logging
+import re
 from pathlib import Path
 
 def _make_parser():
@@ -13,12 +14,25 @@ def _make_parser():
 
     return parser
 
+def parts_tuple_to_path(tuple) -> Path:
+    newpath = Path()
+    for item in tuple:
+        newpath = newpath / item
+
+    return newpath
+
 def find_all_paths(dir):
     path_set = set()
     for item in dir.rglob('*'):
         if not item.name.startswith('.') and not item.name == 'Thumbs.db':
-            item
-            path_set.add(item)
+            item_parts = item.parts # item_parts is a tuple
+            for part in item_parts:
+                id_pattern = '^M\d+$'
+                if re.match(id_pattern, part):
+                    ind = item_parts.index(part)
+                    part_path = parts_tuple_to_path(i_parts[ind:])
+                    path_set.add(part_path)
+
     return path_set
 
 
