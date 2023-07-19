@@ -46,6 +46,7 @@ def main():
     dir_two_set = find_all_paths(args.directory_two)
 
     if not dir_one_set == dir_two_set:
+        print(dir_one_set.symmetric_difference(dir_two_set))
         logging.error(f'These two directories are different')
 
 
