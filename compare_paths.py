@@ -30,7 +30,7 @@ def find_all_paths(dir):
                 id_pattern = '^M\d+$'
                 if re.match(id_pattern, part):
                     ind = item_parts.index(part)
-                    part_path = parts_tuple_to_path(i_parts[ind:])
+                    part_path = parts_tuple_to_path(item_parts[ind:])
                     path_set.add(part_path)
 
     return path_set
