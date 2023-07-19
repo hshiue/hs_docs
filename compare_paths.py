@@ -21,8 +21,9 @@ def parts_tuple_to_path(tuple) -> Path:
 
     return newpath
 
-def find_all_paths(dir):
+def find_all_paths(dir) -> set:
     path_set = set()
+    dir = Path(dir)
     for item in dir.rglob('*'):
         if not item.name.startswith('.') and not item.name == 'Thumbs.db':
             item_parts = item.parts # item_parts is a tuple
@@ -37,7 +38,6 @@ def find_all_paths(dir):
 
 
 
-
 def main():
     parser = _make_parser()
     args = parser.parse_args()
@@ -45,9 +45,17 @@ def main():
     dir_one_set = find_all_paths(args.directory_one)
     dir_two_set = find_all_paths(args.directory_two)
 
+    print(f'''Direcotry one set:
+              {dir_one_set}''')
+
+    print(f'''Direcotry two set:
+              {dir_two_set}''')
+
     if not dir_one_set == dir_two_set:
         print(dir_one_set.symmetric_difference(dir_two_set))
         logging.error(f'These two directories are different')
+    else:
+        print('These two directories are the same')
 
 
 if __name__ == "__main__":
