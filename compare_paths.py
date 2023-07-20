@@ -34,7 +34,7 @@ def find_all_paths(dir):
                     part_path = parts_tuple_to_path(item_parts[ind:])
                     if not parent_path:
                         parent_path = parts_tuple_to_path(item_parts[0:ind])
-                    # this is for reconstructing the original path for file comparison later
+                        # this is for reconstructing the original path for file comparison later
                     path_set.add(part_path)
 
     return path_set, parent_path
