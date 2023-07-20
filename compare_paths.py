@@ -1,6 +1,7 @@
 import argparse
 import logging
 import re
+import sys
 from pathlib import Path
 
 def _make_parser():
@@ -25,6 +26,10 @@ def find_all_paths(dir):
     path_set = set()
     parent_path = ''
     dir = Path(dir)
+
+    if dir_is_empty(dir):
+        sys.exit(f'{dir} is empty')
+
     for item in dir.rglob('*'):
         if not item.name.startswith('.') and not item.name == 'Thumbs.db':
             item_parts = item.parts # item_parts is a tuple
@@ -39,6 +44,11 @@ def find_all_paths(dir):
 
     return path_set, parent_path
 
+def dir_is_empty(dir: Path) -> bool:
+    if not any(dir.iterdir()):
+        return True
+    else:
+        return False
 
 def main():
     parser = _make_parser()
