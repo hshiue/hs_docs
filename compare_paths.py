@@ -29,11 +29,11 @@ def find_all_paths(dir):
         if not item.name.startswith('.') and not item.name == 'Thumbs.db':
             item_parts = item.parts # item_parts is a tuple
             for part in item_parts:
-                id_pattern = '^M\d+$'
-                if re.match(id_pattern, part):
+                if re.match('^M\d+$', part):
                     ind = item_parts.index(part)
                     part_path = parts_tuple_to_path(item_parts[ind:])
-                    parent_path = parts_tuple_to_path(item_parts[0:ind])
+                    if not parent_path:
+                        parent_path = parts_tuple_to_path(item_parts[0:ind])
                     # this is for reconstructing the original path for file comparison later
                     path_set.add(part_path)
 
