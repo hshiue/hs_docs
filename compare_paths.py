@@ -23,7 +23,7 @@ def parts_tuple_to_path(tuple) -> Path:
 
 def find_all_paths(dir):
     path_set = set()
-    parent_path = Path()
+    parent_path = ''
     dir = Path(dir)
     for item in dir.rglob('*'):
         if not item.name.startswith('.') and not item.name == 'Thumbs.db':
