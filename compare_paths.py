@@ -21,8 +21,9 @@ def parts_tuple_to_path(tuple) -> Path:
 
     return newpath
 
-def find_all_paths(dir) -> set:
+def find_all_paths(dir):
     path_set = set()
+    parent_path = Path()
     dir = Path(dir)
     for item in dir.rglob('*'):
         if not item.name.startswith('.') and not item.name == 'Thumbs.db':
@@ -32,18 +33,20 @@ def find_all_paths(dir) -> set:
                 if re.match(id_pattern, part):
                     ind = item_parts.index(part)
                     part_path = parts_tuple_to_path(item_parts[ind:])
+                    parent_path = parts_tuple_to_path(item_parts[0:ind])
+                    # this is for reconstructing the original path for file comparison later
                     path_set.add(part_path)
 
-    return path_set
-
+    return path_set, parent_path
 
 
 def main():
     parser = _make_parser()
     args = parser.parse_args()
 
-    dir_one_set = find_all_paths(args.directory_one)
-    dir_two_set = find_all_paths(args.directory_two)
+    dir_one_set, parent_one = find_all_paths(args.directory_one)
+    dir_two_set, parent_two = find_all_paths(args.directory_two)
+
 
     print(f'''Direcotry one set:
               {dir_one_set}''')
@@ -55,7 +58,7 @@ def main():
         print(dir_one_set.symmetric_difference(dir_two_set))
         logging.error(f'These two directories are different')
     else:
-        print('These two directories are the same')
+        print('These two directories are the same, now compare files')
 
 
 if __name__ == "__main__":
