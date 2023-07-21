@@ -3,6 +3,7 @@ import logging
 import re
 import sys
 from pathlib import Path
+import filecmp
 
 def _make_parser():
     parser = argparse.ArgumentParser(description='Compare two directories using rglob all')
@@ -69,6 +70,17 @@ def main():
         logging.error(f'These two directories are different')
     else:
         print('These two directories are the same, now compare files')
+        mismatch_ls = list()
+        for item in dir_one_set:
+            item_one_path = parent_one / item
+            item_two_path = parent_two / item
+            if item_one_path.is_file() and item_two_path.is_file():
+                if not filecmp.cmp(item_one_path, item_two_path, shallow=True):
+                    mismatch_ls.append(item)
+        if mismatch_ls:
+            logging.error(f'Mismatch: {mismatch_ls}')
+        else:
+            print(f'Both directories files are the same')
 
 
 if __name__ == "__main__":
