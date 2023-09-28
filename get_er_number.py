@@ -88,7 +88,7 @@ def main():
     elif not di_no:
         print(f"""no DIs in M{args.collectionID}""")
     else:
-        print(f"""ER are not consecutive. Review list manually
+        print(f"""DI are not consecutive. Review list manually
               Total er: {len(di_no)}""")
 
     if em_no and check_consecutive(em_no):
@@ -97,7 +97,7 @@ def main():
     elif not em_no:
         print(f"""no EMs in M{args.collectionID}""")
     else:
-        print(f"""ER are not consecutive. Review list manually
+        print(f"""EM are not consecutive. Review list manually
               Total er: {len(em_no)}""")
 
     print(f"""
