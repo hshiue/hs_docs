@@ -66,7 +66,9 @@ def main():
               {dir_two_set}''')
 
     if not dir_one_set == dir_two_set:
-        print(dir_one_set.symmetric_difference(dir_two_set))
+        print(f"""Difference:
+              {dir_one_set.symmetric_difference(dir_two_set)}
+                """)
         logging.error(f'These two directories are different')
     else:
         print('These two directories are the same, now compare files')
