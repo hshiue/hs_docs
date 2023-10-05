@@ -32,7 +32,6 @@ def prepare_api_response(response):
 def prepare_xml_file(xml_file):
     tree = ET.parse(xml_file)
     root = tree.getroot()
-    print(root)
 
     return root
 
