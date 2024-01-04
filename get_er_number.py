@@ -17,6 +17,10 @@ def _make_parser():
                         required=False,
                         action='store_true')
 
+    parser.add_argument('--find_skipping_er', '-fskip',
+                       help="finding what ER number is skipped",
+                       required=False)
+
     parser.add_argument('--folder_path', '-fp',
                        help="optional. Direct path to the folder with FA XMLs",
                        required=False)
@@ -67,6 +71,10 @@ def find_dups(ls) -> set:
     dups = {x for x in ls if ls.count(x) > 1}
 
     return dups
+
+def find_missing_int(lst):
+    return [i for x, y in zip(lst, lst[1:])
+        for i in range(x + 1, y) if y - x > 1]
 
 
 def main():
@@ -139,6 +147,12 @@ def main():
         print(f"""ER dups: {find_dups(er_no)}
                   DI dups: {find_dups(di_no)}
                   EM dups: {find_dups(em_no)}""")
+
+    if args.find_skipping_er:
+        print(f"""ER list skipping: {find_missing_int(er_no)}
+                  DI list skipping: {find_missing_int(di_no)}
+                  EM list skipping: {find_missing_int(em_no)}""")
+
 
 
 
